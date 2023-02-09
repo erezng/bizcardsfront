@@ -1,16 +1,18 @@
 import { useContext, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { RegisterFormType } from "../@types";
 import AuthContext from "../context/AuthContext";
 import * as Yup from "yup";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { ColorRing } from "react-loader-spinner";
+import authService from "../services/auth.service";
 
 const Register = () => {
   //prevent double submit:
   const [isLoading, setIsLoading] = useState(false);
   const { isLoggedIn } = useContext(AuthContext);
-
+  const [errMessage, setErrMessage] = useState<string|undefined>(undefined)
+  const nav=useNavigate();
   const initialValues = {
     username: "",
     email: "",
@@ -28,11 +30,25 @@ const Register = () => {
   const handleRegister = (formValues: RegisterFormType) => {
     setIsLoading(true);
 
-    //fetch axios /register
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000000000);
+    const { username, email, password } = formValues;
+    authService
+      .register(username, email, password)
+      .then((res) => {
+        console.log(res.data);
+        //swal
+        nav("/login");
+      })
+      .catch((e) => {
+        console.log(e);
+        alert(e); //swal //modal
+        setErrMessage(JSON.stringify(e.response.data));
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
+
+
   if (isLoggedIn) {
     return <Navigate to="/" />;
   }
