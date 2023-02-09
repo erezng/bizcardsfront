@@ -3,14 +3,15 @@ import { Navigate } from "react-router-dom";
 import { RegisterFormType } from "../@types";
 import AuthContext from "../context/AuthContext";
 import * as Yup from "yup";
-import { Form, Formik } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { ColorRing } from "react-loader-spinner";
 
 const Register = () => {
   //prevent double submit:
   const [isLoading, setIsLoading] = useState(false);
   const { isLoggedIn } = useContext(AuthContext);
 
-  const initialValues: RegisterFormType = {
+  const initialValues = {
     username: "",
     email: "",
     password: "",
@@ -18,20 +19,38 @@ const Register = () => {
 
   //Validations:
   const validationSchema = Yup.object({
-    username: Yup.string().min(3).required(),
-    email: Yup.string().email("must be a valid email").min(3).required(),
-    password: Yup.string().min(3, "Password is to short").required(),
+    username: Yup.string().min(3, "Name is too short").required(),
+    email: Yup.string().email("Must be a valid email").required(),
+    password: Yup.string().min(3, "Password is too short").required(),
   });
 
   //if all is valid=> this method is invoked
   const handleRegister = (formValues: RegisterFormType) => {
-    alert(JSON.stringify(formValues));
+    setIsLoading(true);
+
+    //fetch axios /register
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000000000);
   };
   if (isLoggedIn) {
     return <Navigate to="/" />;
   }
   return (
     <div>
+      {isLoading && (
+        <div className="mx-auto w-25">
+          <ColorRing
+            visible={true}
+            height="80"
+            width="80"
+            ariaLabel="blocks-loading"
+            wrapperStyle={{ margin: "0 auto" }}
+            wrapperClass="blocks-wrapper"
+            colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+          />
+        </div>
+      )}
       <Formik
         initialValues={initialValues}
         onSubmit={handleRegister}
@@ -42,8 +61,54 @@ const Register = () => {
             <label htmlFor="username" className="form-label">
               User Name
             </label>
-            <input type="text" className="form-control" id="username" />
-            <div className="alert alert-danger">Name too short</div>
+            <Field
+              name="username"
+              type="text"
+              className="form-control"
+              id="username"
+            />
+            <ErrorMessage
+              name="username"
+              component="div"
+              className="alert alert-danger"
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="form-label">
+              Email
+            </label>
+            <Field
+              name="email"
+              type="email"
+              className="form-control"
+              id="email"
+            />
+            <ErrorMessage
+              name="email"
+              component="div"
+              className="alert alert-danger"
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
+            <Field
+              name="password"
+              type="password"
+              className="form-control"
+              id="password"
+            />
+            <ErrorMessage
+              name="password"
+              component="div"
+              className="alert alert-danger"
+            />
+          </div>
+          <div className="col-12">
+            <button className="btn btn-primary" type="submit">
+              Register
+            </button>
           </div>
         </Form>
       </Formik>
