@@ -15,3 +15,8 @@ export type AuthContextType = {
   login: (username: string, email: string, token: string) => void;
   logout: () => void;
 };
+export type RegisterFormType = {
+  username: string;
+  email: string;
+  password: string;
+};
